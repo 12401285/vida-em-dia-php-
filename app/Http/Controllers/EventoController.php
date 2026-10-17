@@ -24,7 +24,13 @@ class EventoController extends Controller
     {
         $evento = Evento::find($id);
 
-        $perguntas = Pergunta::all();
+        $perguntas = $evento->perguntas()
+            ->withCount('votos')
+            ->withExists([
+                'votos as usuario_votou' => fn ($query) => $query->where('users.id', Auth::id()),
+            ])
+            ->orderByDesc('votos_count')
+            ->get();
 
         return view('eventos.show', compact('evento', 'perguntas'));
     }
@@ -61,6 +67,13 @@ class EventoController extends Controller
         // $user = User::find(Auth::id());
         // $user->eventosInscritos()->attach($evento->id);
         return back()->with('status', 'Inscrição atualizada com sucesso!');
+    }
+
+    public function votar(Pergunta $pergunta)
+    {
+        $pergunta->votos()->toggle(auth()->id());
+
+        return back()->with('status', 'Voto atualizado com sucesso!');
     }
 
 }

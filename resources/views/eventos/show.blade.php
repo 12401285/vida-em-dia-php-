@@ -4,6 +4,10 @@
 
 @section('content')
 <div class="row">[
+    @if (session('status'))
+        <div class="alert alert-success">{{ session('status') }}</div>
+    @endif
+
     <div class="flex items-center gap-4 my-4">
         <span class="text-sm font-semibold bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
             👥 {{ $evento->participantes->count() }} participante(s)
@@ -53,6 +57,17 @@
             <div class="card mb-3 shadow-sm border-start border-4 border-primary">
                 <div class="card-body">
                     <p class="fs-5 mb-2 text-white">{{ $pergunta->texto }}</p>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span>{{ $pergunta->votos_count }} votos</span>
+                        @auth
+                            <form action="{{ route('perguntas.votar', $pergunta) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-sm {{ $pergunta->usuario_votou ? 'btn-primary' : 'btn-outline-primary' }}">
+                                    {{ $pergunta->usuario_votou ? 'Remover voto' : 'Votar' }}
+                                </button>
+                            </form>
+                        @endauth
+                    </div>
                     <div class="d-flex justify-content-between align-items-center text-secondary small">
                         <span>Status: <span class="badge bg-success">{{ $pergunta->status }}</span></span>
                         <span>{{ $pergunta->created_at->format('d/m/Y H:i') }}</span>
