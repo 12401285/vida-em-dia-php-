@@ -18,9 +18,9 @@ class EventoController extends Controller
 
     public function show($id)
     {
-        $evento = Evento::find($id);
+        $evento = Evento::findOrFail($id);
 
-        $perguntas = Pergunta::all();
+        $perguntas = $evento->perguntas()->latest()->paginate(10);
 
         return view('eventos.show', compact('evento', 'perguntas'));
     }
